@@ -4,7 +4,7 @@ public class Jerry {
         String horizontalLine = "____________________________________________________________";
 
         System.out.println(horizontalLine);
-        System.out.println(" Hello! I'm " + botName);
+        System.out.println("Hello! I'm " + botName);
         System.out.println(" What can I do for you?");
         System.out.println(horizontalLine);
 
