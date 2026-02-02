@@ -5,8 +5,8 @@ public class Jerry {
         String botName = "Jerry";
         String horizontalLine = "    ____________________________________________________________";
 
-        // Storage for tasks
-        String[] tasks = new String[100];
+        // Use an array of Task objects instead of Strings
+        Task[] tasks = new Task[100];
         int taskCount = 0;
 
         System.out.println(horizontalLine);
@@ -22,15 +22,32 @@ public class Jerry {
             if (input.equals("bye")) {
                 break;
             } else if (input.equals("list")) {
-                // Print the list
                 System.out.println(horizontalLine);
+                System.out.println("     Here are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println("     " + (i + 1) + ". " + tasks[i]);
+                    System.out.println("     " + (i + 1) + "." + tasks[i].toString());
                 }
                 System.out.println(horizontalLine);
+            } else if (input.startsWith("mark ")) {
+                // Get the number after "mark ", convert to int, and subtract 1 for array index
+                int index = Integer.parseInt(input.substring(5)) - 1;
+                tasks[index].markAsDone();
+
+                System.out.println(horizontalLine);
+                System.out.println("     Nice! I've marked this task as done:");
+                System.out.println("       " + tasks[index]);
+                System.out.println(horizontalLine);
+            } else if (input.startsWith("unmark ")) {
+                int index = Integer.parseInt(input.substring(7)) - 1;
+                tasks[index].unmarkAsDone();
+
+                System.out.println(horizontalLine);
+                System.out.println("     OK, I've marked this task as not done yet:");
+                System.out.println("       " + tasks[index]);
+                System.out.println(horizontalLine);
             } else {
-                // Add to list
-                tasks[taskCount] = input;
+                // Default action: Add a new task
+                tasks[taskCount] = new Task(input);
                 taskCount++;
 
                 System.out.println(horizontalLine);
