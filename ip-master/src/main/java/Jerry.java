@@ -1,35 +1,44 @@
-import java.util.Scanner; // Import the Scanner class to read input
+import java.util.Scanner;
 
 public class Jerry {
     public static void main(String[] args) {
         String botName = "Jerry";
         String horizontalLine = "    ____________________________________________________________";
 
-        // Greet the user
+        // Storage for tasks
+        String[] tasks = new String[100];
+        int taskCount = 0;
+
         System.out.println(horizontalLine);
         System.out.println("     Hello! I'm " + botName);
         System.out.println("     What can I do for you?");
         System.out.println(horizontalLine);
 
-        // Initialize Scanner to read from the terminal
         Scanner in = new Scanner(System.in);
-        String line;
 
-        // The loop continues until the user types "bye"
         while (true) {
-            line = in.nextLine(); // Read user input
+            String input = in.nextLine();
 
-            if (line.equals("bye")) {
-                break; // Exit the loop
+            if (input.equals("bye")) {
+                break;
+            } else if (input.equals("list")) {
+                // Print the list
+                System.out.println(horizontalLine);
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println("     " + (i + 1) + ". " + tasks[i]);
+                }
+                System.out.println(horizontalLine);
+            } else {
+                // Add to list
+                tasks[taskCount] = input;
+                taskCount++;
+
+                System.out.println(horizontalLine);
+                System.out.println("     added: " + input);
+                System.out.println(horizontalLine);
             }
-
-            // Echo the command inside horizontal lines
-            System.out.println(horizontalLine);
-            System.out.println("     " + line);
-            System.out.println(horizontalLine);
         }
 
-        // Final exit message
         System.out.println(horizontalLine);
         System.out.println("     Bye. Hope to see you again soon!");
         System.out.println(horizontalLine);
