@@ -1,92 +1,130 @@
 import java.util.Scanner;
 
 public class Jerry {
-    private static final String HORIZONTAL_LINE = "    ____________________________________________________________";
+    // A-CodeQuality: Define constants to avoid "Magic Strings"
+    private static final String LINE = "    ____________________________________________________________";
+    private static final String LOGO = "     Hello! I'm Jerry\n     What can I do for you?";
+    private static final String BYE_MESSAGE = "     Bye. Hope to see you again soon!";
+
+    // Command Constants
+    private static final String COMMAND_BYE = "bye";
+    private static final String COMMAND_LIST = "list";
+    private static final String COMMAND_MARK = "mark";
+    private static final String COMMAND_UNMARK = "unmark";
+    private static final String COMMAND_TODO = "todo";
+    private static final String COMMAND_DEADLINE = "deadline";
+    private static final String COMMAND_EVENT = "event";
+
+    private static final int MAX_TASKS = 100;
 
     public static void main(String[] args) {
-        String botName = "Jerry";
-        Task[] tasks = new Task[100]; // Fixed size array as per Level-2 instructions
+        Task[] tasks = new Task[MAX_TASKS];
         int taskCount = 0;
-
-        printGreeting(botName);
-
         Scanner in = new Scanner(System.in);
 
-        while (true) {
-            String input = in.nextLine();
+        printHorizontalLine();
+        System.out.println(LOGO);
+        printHorizontalLine();
 
-            if (input.equals("bye")) {
+        while (true) {
+            String fullInput = in.nextLine();
+            String commandWord = fullInput.split(" ")[0];
+
+            if (commandWord.equals(COMMAND_BYE)) {
                 break;
-            } else if (input.equals("list")) {
-                printList(tasks, taskCount);
-            } else if (input.startsWith("mark ")) {
-                handleMarkUnmark(input, tasks, true);
-            } else if (input.startsWith("unmark ")) {
-                handleMarkUnmark(input, tasks, false);
-            } else if (input.startsWith("todo ")) {
-                tasks[taskCount] = new Todo(input.substring(5));
-                taskCount++;
-                printAddedFeedback(tasks[taskCount - 1], taskCount);
-            } else if (input.startsWith("deadline ")) {
-                // Splits input into description and the '/by' timing
-                String[] parts = input.substring(9).split(" /by ");
-                tasks[taskCount] = new Deadline(parts[0], parts[1]);
-                taskCount++;
-                printAddedFeedback(tasks[taskCount - 1], taskCount);
-            } else if (input.startsWith("event ")) {
-                // Splits input into description, '/from', and '/to' timings
-                String[] parts = input.substring(6).split(" /from | /to ");
-                tasks[taskCount] = new Event(parts[0], parts[1], parts[2]);
-                taskCount++;
-                printAddedFeedback(tasks[taskCount - 1], taskCount);
             }
+
+            // A-CodeQuality: Logic delegated to a handler method
+            taskCount = handleCommand(fullInput, commandWord, tasks, taskCount);
         }
 
-        printGoodbye();
+        printHorizontalLine();
+        System.out.println(BYE_MESSAGE);
+        printHorizontalLine();
     }
 
-    private static void printGreeting(String name) {
-        System.out.println(HORIZONTAL_LINE);
-        System.out.println("     Hello! I'm " + name);
-        System.out.println("     What can I do for you?");
-        System.out.println(HORIZONTAL_LINE);
+    private static int handleCommand(String input, String command, Task[] tasks, int count) {
+        switch (command) {
+        case COMMAND_LIST:
+            printTaskList(tasks, count);
+            break;
+        case COMMAND_MARK:
+            updateTaskStatus(input, tasks, true);
+            break;
+        case COMMAND_UNMARK:
+            updateTaskStatus(input, tasks, false);
+            break;
+        case COMMAND_TODO:
+            return addTodo(input, tasks, count);
+        case COMMAND_DEADLINE:
+            return addDeadline(input, tasks, count);
+        case COMMAND_EVENT:
+            return addEvent(input, tasks, count);
+        default:
+            // For now, treat unknown commands as generic tasks or ignore
+            System.out.println("     I'm sorry, I don't know what that means.");
+            break;
+        }
+        return count;
     }
 
-    private static void printGoodbye() {
-        System.out.println(HORIZONTAL_LINE);
-        System.out.println("     Bye. Hope to see you again soon!");
-        System.out.println(HORIZONTAL_LINE);
-    }
-
-    private static void printList(Task[] tasks, int count) {
-        System.out.println(HORIZONTAL_LINE);
+    private static void printTaskList(Task[] tasks, int count) {
+        printHorizontalLine();
         System.out.println("     Here are the tasks in your list:");
         for (int i = 0; i < count; i++) {
             System.out.println("     " + (i + 1) + "." + tasks[i]);
         }
-        System.out.println(HORIZONTAL_LINE);
+        printHorizontalLine();
     }
 
-    private static void handleMarkUnmark(String input, Task[] tasks, boolean isMark) {
+    private static void updateTaskStatus(String input, Task[] tasks, boolean isMark) {
         int index = Integer.parseInt(input.split(" ")[1]) - 1;
         if (isMark) {
             tasks[index].markAsDone();
-            System.out.println(HORIZONTAL_LINE);
-            System.out.println("     Nice! I've marked this task as done:");
+            printFeedback("Nice! I've marked this task as done:", tasks[index]);
         } else {
             tasks[index].unmarkAsDone();
-            System.out.println(HORIZONTAL_LINE);
-            System.out.println("     OK, I've marked this task as not done yet:");
+            printFeedback("OK, I've marked this task as not done yet:", tasks[index]);
         }
-        System.out.println("       " + tasks[index]);
-        System.out.println(HORIZONTAL_LINE);
     }
 
-    private static void printAddedFeedback(Task task, int count) {
-        System.out.println(HORIZONTAL_LINE);
+    private static int addTodo(String input, Task[] tasks, int count) {
+        String description = input.substring(5).trim();
+        tasks[count] = new Todo(description);
+        printAddedFeedback(tasks[count], count + 1);
+        return count + 1;
+    }
+
+    private static int addDeadline(String input, Task[] tasks, int count) {
+        String[] parts = input.substring(9).split(" /by ");
+        tasks[count] = new Deadline(parts[0].trim(), parts[1].trim());
+        printAddedFeedback(tasks[count], count + 1);
+        return count + 1;
+    }
+
+    private static int addEvent(String input, Task[] tasks, int count) {
+        String[] parts = input.substring(6).split(" /from | /to ");
+        tasks[count] = new Event(parts[0].trim(), parts[1].trim(), parts[2].trim());
+        printAddedFeedback(tasks[count], count + 1);
+        return count + 1;
+    }
+
+    private static void printFeedback(String message, Task task) {
+        printHorizontalLine();
+        System.out.println("     " + message);
+        System.out.println("       " + task);
+        printHorizontalLine();
+    }
+
+    private static void printAddedFeedback(Task task, int total) {
+        printHorizontalLine();
         System.out.println("     Got it. I've added this task:");
         System.out.println("       " + task);
-        System.out.println("     Now you have " + count + " tasks in the list.");
-        System.out.println(HORIZONTAL_LINE);
+        System.out.println("     Now you have " + total + " tasks in the list.");
+        printHorizontalLine();
+    }
+
+    private static void printHorizontalLine() {
+        System.out.println(LINE);
     }
 }
