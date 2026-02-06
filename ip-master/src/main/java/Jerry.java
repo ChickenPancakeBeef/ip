@@ -115,7 +115,6 @@ public class Jerry {
         System.out.println("       " + task);
         printHorizontalLine();
     }
-
     private static void printAddedFeedback(Task task, int total) {
         printHorizontalLine();
         System.out.println("     Got it. I've added this task:");
