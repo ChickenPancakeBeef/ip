@@ -27,15 +27,31 @@ public class Jerry {
         printHorizontalLine();
 
         while (true) {
-            String fullInput = in.nextLine();
+            String fullInput = in.nextLine().trim();
+            if (fullInput.isEmpty()) continue;
+
             String commandWord = fullInput.split(" ")[0];
 
             if (commandWord.equals(COMMAND_BYE)) {
                 break;
             }
 
-            // A-CodeQuality: Logic delegated to a handler method
-            taskCount = handleCommand(fullInput, commandWord, tasks, taskCount);
+            // Level 5: Handle errors gracefully using try-catch
+            try {
+                taskCount = handleCommand(fullInput, commandWord, tasks, taskCount);
+            } catch (JerryException e) {
+                printHorizontalLine();
+                System.out.println("     ☹ OOPS!!! " + e.getMessage());
+                printHorizontalLine();
+            } catch (NumberFormatException e) {
+                printHorizontalLine();
+                System.out.println("     ☹ OOPS!!! Please provide a valid task number.");
+                printHorizontalLine();
+            } catch (IndexOutOfBoundsException e) {
+                printHorizontalLine();
+                System.out.println("     ☹ OOPS!!! The format for that command is incomplete.");
+                printHorizontalLine();
+            }
         }
 
         printHorizontalLine();
@@ -43,16 +59,16 @@ public class Jerry {
         printHorizontalLine();
     }
 
-    private static int handleCommand(String input, String command, Task[] tasks, int count) {
+    private static int handleCommand(String input, String command, Task[] tasks, int count) throws JerryException {
         switch (command) {
         case COMMAND_LIST:
             printTaskList(tasks, count);
             break;
         case COMMAND_MARK:
-            updateTaskStatus(input, tasks, true);
+            updateTaskStatus(input, tasks, count, true);
             break;
         case COMMAND_UNMARK:
-            updateTaskStatus(input, tasks, false);
+            updateTaskStatus(input, tasks, count, false);
             break;
         case COMMAND_TODO:
             return addTodo(input, tasks, count);
@@ -61,9 +77,7 @@ public class Jerry {
         case COMMAND_EVENT:
             return addEvent(input, tasks, count);
         default:
-            // For now, treat unknown commands as generic tasks or ignore
-            System.out.println("     I'm sorry, I don't know what that means.");
-            break;
+            throw new JerryException("I'm sorry, but I don't know what that means :-(");
         }
         return count;
     }
@@ -77,8 +91,17 @@ public class Jerry {
         printHorizontalLine();
     }
 
-    private static void updateTaskStatus(String input, Task[] tasks, boolean isMark) {
-        int index = Integer.parseInt(input.split(" ")[1]) - 1;
+    private static void updateTaskStatus(String input, Task[] tasks, int count, boolean isMark) throws JerryException {
+        String[] parts = input.split(" ");
+        if (parts.length < 2) {
+            throw new JerryException("Please specify a task number.");
+        }
+
+        int index = Integer.parseInt(parts[1]) - 1;
+        if (index < 0 || index >= count) {
+            throw new JerryException("That task number doesn't exist in your list!");
+        }
+
         if (isMark) {
             tasks[index].markAsDone();
             printFeedback("Nice! I've marked this task as done:", tasks[index]);
@@ -88,22 +111,40 @@ public class Jerry {
         }
     }
 
-    private static int addTodo(String input, Task[] tasks, int count) {
-        String description = input.substring(5).trim();
+    private static int addTodo(String input, Task[] tasks, int count) throws JerryException {
+        if (input.length() <= COMMAND_TODO.length()) {
+            throw new JerryException("The description of a todo cannot be empty.");
+        }
+        String description = input.substring(COMMAND_TODO.length()).trim();
+        if (description.isEmpty()) {
+            throw new JerryException("The description of a todo cannot be empty.");
+        }
         tasks[count] = new Todo(description);
         printAddedFeedback(tasks[count], count + 1);
         return count + 1;
     }
 
-    private static int addDeadline(String input, Task[] tasks, int count) {
-        String[] parts = input.substring(9).split(" /by ");
+    private static int addDeadline(String input, Task[] tasks, int count) throws JerryException {
+        if (!input.contains(" /by ")) {
+            throw new JerryException("A deadline must contain ' /by ' followed by the time.");
+        }
+        String[] parts = input.substring(COMMAND_DEADLINE.length()).split(" /by ", 2);
+        if (parts[0].trim().isEmpty()) {
+            throw new JerryException("The description of a deadline cannot be empty.");
+        }
         tasks[count] = new Deadline(parts[0].trim(), parts[1].trim());
         printAddedFeedback(tasks[count], count + 1);
         return count + 1;
     }
 
-    private static int addEvent(String input, Task[] tasks, int count) {
-        String[] parts = input.substring(6).split(" /from | /to ");
+    private static int addEvent(String input, Task[] tasks, int count) throws JerryException {
+        if (!input.contains(" /from ") || !input.contains(" /to ")) {
+            throw new JerryException("An event must contain ' /from ' and ' /to ' delimiters.");
+        }
+        String[] parts = input.substring(COMMAND_EVENT.length()).split(" /from | /to ", 3);
+        if (parts[0].trim().isEmpty()) {
+            throw new JerryException("The description of an event cannot be empty.");
+        }
         tasks[count] = new Event(parts[0].trim(), parts[1].trim(), parts[2].trim());
         printAddedFeedback(tasks[count], count + 1);
         return count + 1;
@@ -115,6 +156,7 @@ public class Jerry {
         System.out.println("       " + task);
         printHorizontalLine();
     }
+
     private static void printAddedFeedback(Task task, int total) {
         printHorizontalLine();
         System.out.println("     Got it. I've added this task:");
@@ -127,4 +169,3 @@ public class Jerry {
         System.out.println(LINE);
     }
 }
-//check ide
