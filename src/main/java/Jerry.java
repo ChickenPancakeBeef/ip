@@ -1,12 +1,11 @@
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Jerry {
-    // A-CodeQuality: Define constants to avoid "Magic Strings"
     private static final String LINE = "    ____________________________________________________________";
     private static final String LOGO = "     Hello! I'm Jerry\n     What can I do for you?";
     private static final String BYE_MESSAGE = "     Bye. Hope to see you again soon!";
 
-    // Command Constants
     private static final String COMMAND_BYE = "bye";
     private static final String COMMAND_LIST = "list";
     private static final String COMMAND_MARK = "mark";
@@ -14,12 +13,10 @@ public class Jerry {
     private static final String COMMAND_TODO = "todo";
     private static final String COMMAND_DEADLINE = "deadline";
     private static final String COMMAND_EVENT = "event";
-
-    private static final int MAX_TASKS = 100;
+    private static final String COMMAND_DELETE = "delete";
 
     public static void main(String[] args) {
-        Task[] tasks = new Task[MAX_TASKS];
-        int taskCount = 0;
+        ArrayList<Task> tasks = new ArrayList<>();
         Scanner in = new Scanner(System.in);
 
         printHorizontalLine();
@@ -36,9 +33,8 @@ public class Jerry {
                 break;
             }
 
-            // Level 5: Handle errors gracefully using try-catch
             try {
-                taskCount = handleCommand(fullInput, commandWord, tasks, taskCount);
+                handleCommand(fullInput, commandWord, tasks);
             } catch (JerryException e) {
                 printHorizontalLine();
                 System.out.println("     ☹ OOPS!!! " + e.getMessage());
@@ -59,72 +55,74 @@ public class Jerry {
         printHorizontalLine();
     }
 
-    private static int handleCommand(String input, String command, Task[] tasks, int count) throws JerryException {
+    private static void handleCommand(String input, String command, ArrayList<Task> tasks) throws JerryException {
         switch (command) {
-        case COMMAND_LIST:
-            printTaskList(tasks, count);
-            break;
-        case COMMAND_MARK:
-            updateTaskStatus(input, tasks, count, true);
-            break;
-        case COMMAND_UNMARK:
-            updateTaskStatus(input, tasks, count, false);
-            break;
-        case COMMAND_TODO:
-            return addTodo(input, tasks, count);
-        case COMMAND_DEADLINE:
-            return addDeadline(input, tasks, count);
-        case COMMAND_EVENT:
-            return addEvent(input, tasks, count);
-        default:
-            throw new JerryException("I'm sorry, but I don't know what that means :-(");
+            case COMMAND_LIST:
+                printTaskList(tasks);
+                break;
+            case COMMAND_MARK:
+                updateTaskStatus(input, tasks, true);
+                break;
+            case COMMAND_UNMARK:
+                updateTaskStatus(input, tasks, false);
+                break;
+            case COMMAND_TODO:
+                addTodo(input, tasks);
+                break;
+            case COMMAND_DEADLINE:
+                addDeadline(input, tasks);
+                break;
+            case COMMAND_EVENT:
+                addEvent(input, tasks);
+                break;
+            case COMMAND_DELETE:
+                deleteTask(input, tasks);
+                break;
+            default:
+                throw new JerryException("I'm sorry, but I don't know what that means :-(");
         }
-        return count;
     }
 
-    private static void printTaskList(Task[] tasks, int count) {
+    private static void printTaskList(ArrayList<Task> tasks) {
         printHorizontalLine();
         System.out.println("     Here are the tasks in your list:");
-        for (int i = 0; i < count; i++) {
-            System.out.println("     " + (i + 1) + "." + tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println("     " + (i + 1) + "." + tasks.get(i));
         }
         printHorizontalLine();
     }
 
-    private static void updateTaskStatus(String input, Task[] tasks, int count, boolean isMark) throws JerryException {
+    private static void updateTaskStatus(String input, ArrayList<Task> tasks, boolean isMark) throws JerryException {
         String[] parts = input.split(" ");
         if (parts.length < 2) {
             throw new JerryException("Please specify a task number.");
         }
 
         int index = Integer.parseInt(parts[1]) - 1;
-        if (index < 0 || index >= count) {
+        if (index < 0 || index >= tasks.size()) {
             throw new JerryException("That task number doesn't exist in your list!");
         }
 
         if (isMark) {
-            tasks[index].markAsDone();
-            printFeedback("Nice! I've marked this task as done:", tasks[index]);
+            tasks.get(index).markAsDone();
+            printFeedback("Nice! I've marked this task as done:", tasks.get(index));
         } else {
-            tasks[index].unmarkAsDone();
-            printFeedback("OK, I've marked this task as not done yet:", tasks[index]);
+            tasks.get(index).unmarkAsDone();
+            printFeedback("OK, I've marked this task as not done yet:", tasks.get(index));
         }
     }
 
-    private static int addTodo(String input, Task[] tasks, int count) throws JerryException {
-        if (input.length() <= COMMAND_TODO.length()) {
-            throw new JerryException("The description of a todo cannot be empty.");
-        }
+    private static void addTodo(String input, ArrayList<Task> tasks) throws JerryException {
         String description = input.substring(COMMAND_TODO.length()).trim();
         if (description.isEmpty()) {
             throw new JerryException("The description of a todo cannot be empty.");
         }
-        tasks[count] = new Todo(description);
-        printAddedFeedback(tasks[count], count + 1);
-        return count + 1;
+        Task newTask = new Todo(description);
+        tasks.add(newTask);
+        printAddedFeedback(newTask, tasks.size());
     }
 
-    private static int addDeadline(String input, Task[] tasks, int count) throws JerryException {
+    private static void addDeadline(String input, ArrayList<Task> tasks) throws JerryException {
         if (!input.contains(" /by ")) {
             throw new JerryException("A deadline must contain ' /by ' followed by the time.");
         }
@@ -132,12 +130,12 @@ public class Jerry {
         if (parts[0].trim().isEmpty()) {
             throw new JerryException("The description of a deadline cannot be empty.");
         }
-        tasks[count] = new Deadline(parts[0].trim(), parts[1].trim());
-        printAddedFeedback(tasks[count], count + 1);
-        return count + 1;
+        Task newTask = new Deadline(parts[0].trim(), parts[1].trim());
+        tasks.add(newTask);
+        printAddedFeedback(newTask, tasks.size());
     }
 
-    private static int addEvent(String input, Task[] tasks, int count) throws JerryException {
+    private static void addEvent(String input, ArrayList<Task> tasks) throws JerryException {
         if (!input.contains(" /from ") || !input.contains(" /to ")) {
             throw new JerryException("An event must contain ' /from ' and ' /to ' delimiters.");
         }
@@ -145,9 +143,27 @@ public class Jerry {
         if (parts[0].trim().isEmpty()) {
             throw new JerryException("The description of an event cannot be empty.");
         }
-        tasks[count] = new Event(parts[0].trim(), parts[1].trim(), parts[2].trim());
-        printAddedFeedback(tasks[count], count + 1);
-        return count + 1;
+        Task newTask = new Event(parts[0].trim(), parts[1].trim(), parts[2].trim());
+        tasks.add(newTask);
+        printAddedFeedback(newTask, tasks.size());
+    }
+
+    private static void deleteTask(String input, ArrayList<Task> tasks) throws JerryException {
+        String[] parts = input.split(" ");
+        if (parts.length < 2) {
+            throw new JerryException("Please specify which task number to delete.");
+        }
+        int index = Integer.parseInt(parts[1]) - 1;
+        if (index < 0 || index >= tasks.size()) {
+            throw new JerryException("I can't delete that; task " + (index + 1) + " doesn't exist!");
+        }
+
+        Task removedTask = tasks.remove(index);
+        printHorizontalLine();
+        System.out.println("     Noted. I've removed this task:");
+        System.out.println("       " + removedTask);
+        System.out.println("     Now you have " + tasks.size() + " tasks in the list.");
+        printHorizontalLine();
     }
 
     private static void printFeedback(String message, Task task) {
