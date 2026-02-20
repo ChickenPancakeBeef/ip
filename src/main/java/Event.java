@@ -9,8 +9,13 @@ public class Event extends Task {
     }
 
     @Override
+    public String toFileFormat() {
+        // Returns "E | 0 | project meeting | Mon 2pm | 4pm"
+        return "E | " + super.toFileFormat() + " | " + from + " | " + to;
+    }
+
+    @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
 }
-//end

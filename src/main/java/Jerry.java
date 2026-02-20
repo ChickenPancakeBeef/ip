@@ -1,5 +1,10 @@
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Jerry {
     private static final String LINE = "    ____________________________________________________________";
@@ -15,8 +20,15 @@ public class Jerry {
     private static final String COMMAND_EVENT = "event";
     private static final String COMMAND_DELETE = "delete";
 
+    // Path setup: data/jerry.txt
+    private static final Path FILE_PATH = Paths.get("data", "jerry.txt");
+
     public static void main(String[] args) {
         ArrayList<Task> tasks = new ArrayList<>();
+
+        // HOOK: Load tasks from hard disk at startup
+        loadTasks(tasks);
+
         Scanner in = new Scanner(System.in);
 
         printHorizontalLine();
@@ -62,26 +74,92 @@ public class Jerry {
                 break;
             case COMMAND_MARK:
                 updateTaskStatus(input, tasks, true);
+                saveTasks(tasks); // HOOK: Save after change
                 break;
             case COMMAND_UNMARK:
                 updateTaskStatus(input, tasks, false);
+                saveTasks(tasks); // HOOK: Save after change
                 break;
             case COMMAND_TODO:
                 addTodo(input, tasks);
+                saveTasks(tasks); // HOOK: Save after change
                 break;
             case COMMAND_DEADLINE:
                 addDeadline(input, tasks);
+                saveTasks(tasks); // HOOK: Save after change
                 break;
             case COMMAND_EVENT:
                 addEvent(input, tasks);
+                saveTasks(tasks); // HOOK: Save after change
                 break;
             case COMMAND_DELETE:
                 deleteTask(input, tasks);
+                saveTasks(tasks); // HOOK: Save after change
                 break;
             default:
                 throw new JerryException("I'm sorry, but I don't know what that means :-(");
         }
     }
+
+    // --- LEVEL 7: STORAGE METHODS ---
+
+    private static void saveTasks(ArrayList<Task> tasks) {
+        try {
+            File file = FILE_PATH.toFile();
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs(); // Create 'data' folder if missing
+            }
+
+            FileWriter fw = new FileWriter(file);
+            for (Task t : tasks) {
+                fw.write(t.toFileFormat() + System.lineSeparator());
+            }
+            fw.close();
+        } catch (IOException e) {
+            System.out.println("     ☹ OOPS!!! Error saving tasks: " + e.getMessage());
+        }
+    }
+
+    private static void loadTasks(ArrayList<Task> tasks) {
+        File f = FILE_PATH.toFile();
+        if (!f.exists()) {
+            return; // First-time run: no file to load
+        }
+
+        try (Scanner s = new Scanner(f)) {
+            while (s.hasNext()) {
+                String line = s.nextLine();
+                String[] p = line.split(" \\| ");
+                Task task = null;
+
+                // Stretch Goal: Basic corruption check
+                if (p.length < 3) continue;
+
+                switch (p[0]) {
+                    case "T":
+                        task = new Todo(p[2]);
+                        break;
+                    case "D":
+                        task = new Deadline(p[2], p[3]);
+                        break;
+                    case "E":
+                        task = new Event(p[2], p[3], p[4]);
+                        break;
+                }
+
+                if (task != null) {
+                    if (p[1].equals("1")) {
+                        task.markAsDone();
+                    }
+                    tasks.add(task);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("     ☹ OOPS!!! Error loading file. Starting fresh.");
+        }
+    }
+
+    // --- EXISTING HELPER METHODS ---
 
     private static void printTaskList(ArrayList<Task> tasks) {
         printHorizontalLine();

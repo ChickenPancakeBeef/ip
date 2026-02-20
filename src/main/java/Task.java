@@ -19,6 +19,11 @@ public class Task {
         this.isDone = false;
     }
 
+    public String toFileFormat() {
+        // Returns "1 | read book" or "0 | read book"
+        return (isDone ? "1" : "0") + " | " + description;
+    }
+
     @Override
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;
