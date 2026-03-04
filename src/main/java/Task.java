@@ -19,10 +19,7 @@ public class Task {
         this.isDone = false;
     }
 
-    public String toFileFormat() {
-        // Returns "1 | read book" or "0 | read book"
-        return (isDone ? "1" : "0") + " | " + description;
-    }
+    // REMOVED toFileFormat() because it belongs to Level 7
 
     @Override
     public String toString() {
