@@ -19,7 +19,11 @@ public class Task {
         this.isDone = false;
     }
 
-    // REMOVED toFileFormat() because it belongs to Level 7
+    // RESTORED: This is required for the saving logic in Level 7
+    public String toFileFormat() {
+        // Returns "1 | read book" or "0 | read book"
+        return (isDone ? "1" : "0") + " | " + description;
+    }
 
     @Override
     public String toString() {

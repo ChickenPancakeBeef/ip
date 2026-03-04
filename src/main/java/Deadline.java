@@ -6,7 +6,12 @@ public class Deadline extends Task {
         this.by = by;
     }
 
-    // REMOVED toFileFormat() for Level 6 branch
+    // RESTORED for Level 7 functionality in the final merged master
+    @Override
+    public String toFileFormat() {
+        // Returns "D | 0 | return book | June 6th"
+        return "D | " + super.toFileFormat() + " | " + by;
+    }
 
     @Override
     public String toString() {

@@ -8,7 +8,12 @@ public class Event extends Task {
         this.to = to;
     }
 
-    // REMOVED toFileFormat() because it belongs to Level 7
+    // Restore this method so Level 7 works!
+    @Override
+    public String toFileFormat() {
+        // Returns "E | 0 | project meeting | Mon 2pm | 4pm"
+        return "E | " + super.toFileFormat() + " | " + from + " | " + to;
+    }
 
     @Override
     public String toString() {

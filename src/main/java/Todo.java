@@ -3,7 +3,12 @@ public class Todo extends Task {
         super(description);
     }
 
-    // REMOVED toFileFormat() because it belongs to Level 7
+    // You MUST include this for Level 7 to work!
+    @Override
+    public String toFileFormat() {
+        // Returns "T | 1 | description"
+        return "T | " + super.toFileFormat();
+    }
 
     @Override
     public String toString() {
