@@ -19,6 +19,8 @@ public class Task {
         this.isDone = false;
     }
 
+    // REMOVED toFileFormat() because it belongs to Level 7
+
     @Override
     public String toString() {
         return "[" + getStatusIcon() + "] " + description;

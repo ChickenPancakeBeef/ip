@@ -8,9 +8,10 @@ public class Event extends Task {
         this.to = to;
     }
 
+    // REMOVED toFileFormat() because it belongs to Level 7
+
     @Override
     public String toString() {
         return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
     }
 }
-//end
