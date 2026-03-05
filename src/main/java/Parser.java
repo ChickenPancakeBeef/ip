@@ -2,7 +2,7 @@ public class Parser {
     public static Command parse(String fullCommand) throws JerryException {
         String[] parts = fullCommand.trim().split(" ", 2);
         String commandWord = parts[0].toLowerCase();
-        String arguments = parts.length > 1 ? parts[1] : "";
+        String arguments = parts.length > 1 ? parts[1].trim() : "";
 
         switch (commandWord) {
             case "bye":
@@ -21,6 +21,11 @@ public class Parser {
                 return new MarkCommand(parseIndex(arguments), false);
             case "delete":
                 return new DeleteCommand(parseIndex(arguments));
+            case "find":
+                if (arguments.isEmpty()) {
+                    throw new JerryException("The search keyword cannot be empty.");
+                }
+                return new FindCommand(arguments);
             default:
                 throw new JerryException("I'm sorry, but I don't know what that means :-(");
         }
@@ -28,7 +33,10 @@ public class Parser {
 
     private static int parseIndex(String args) throws JerryException {
         try {
-            return Integer.parseInt(args.trim()) - 1;
+            if (args.isEmpty()) {
+                throw new JerryException("Please specify a task number.");
+            }
+            return Integer.parseInt(args) - 1;
         } catch (NumberFormatException e) {
             throw new JerryException("Please provide a valid task number.");
         }

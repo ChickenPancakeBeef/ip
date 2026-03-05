@@ -40,7 +40,6 @@ public class Jerry {
         }
         ui.showBye();
     }
-
     public static void main(String[] args) {
         new Jerry("data/jerry.txt").run();
     }
