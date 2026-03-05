@@ -10,13 +10,16 @@ public class AddDeadlineCommand extends Command {
         if (!arguments.contains(" /by ")) {
             throw new JerryException("A deadline must contain ' /by '.");
         }
+
         String[] parts = arguments.split(" /by ", 2);
         if (parts[0].trim().isEmpty()) {
             throw new JerryException("The description of a deadline cannot be empty.");
         }
 
+        // The Deadline constructor now handles the date parsing logic
         Task d = new Deadline(parts[0].trim(), parts[1].trim());
         tasks.addTask(d);
+
         ui.showMessage("Got it. I've added this task:\n       " + d);
         ui.showMessage("Now you have " + tasks.getSize() + " tasks in the list.");
     }

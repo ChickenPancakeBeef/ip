@@ -36,7 +36,14 @@ public class Storage {
         Task task = null;
         switch (p[0]) {
             case "T": task = new Todo(p[2]); break;
-            case "D": task = new Deadline(p[2], p[3]); break;
+            case "D":
+                try {
+                    task = new Deadline(p[2], p[3]);
+                } catch (JerryException e) {
+                    // If the file is corrupted, skip this line
+                    return null;
+                }
+                break;
             case "E": task = new Event(p[2], p[3], p[4]); break;
         }
 
