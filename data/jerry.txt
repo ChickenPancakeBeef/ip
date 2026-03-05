@@ -1,4 +1,19 @@
-<<<<<<< HEAD
-=======
 T | 0 | meeting
->>>>>>> branch-Level-7
+T | 0 | chicken
+T | 0 | borrow book
+T | 0 | borrow book
+D | 0 | do homework | no idea :-p
+D | 0 | do homework | no idea :-p
+D | 0 | do homework | no idea :-p
+D | 0 | do homework | no idea :-p
+D | 0 | do homework | no idea :-p
+D | 0 | do homework | no idea :-p
+D | 0 | return book | Sunday
+E | 0 | project meeting | Mon 2pm | 4pm
+E | 0 | project meeting | Mon 2pm | 4pm
+E | 0 | project meeting | Mon 2pm | 4pm
+T | 0 | borrow book
+T | 0 | chicken
+D | 0 | return book | Sunday
+E | 0 | project meeting | Mon 2pm | 4pm
+D | 0 | do homework | no idea :-p
