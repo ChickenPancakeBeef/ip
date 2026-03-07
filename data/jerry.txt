@@ -16,3 +16,4 @@ D | 0 | return book | 2026-12-01
 T | 0 | chicken
 T | 0 | borrow book
 E | 0 | project meeting | Mon 2pm | 4pm
+T | 0 | kfc
