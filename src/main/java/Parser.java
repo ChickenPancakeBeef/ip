@@ -1,4 +1,13 @@
+/**
+ * Interprets user input and converts it into executable Command objects.
+ */
 public class Parser {
+    /**
+     * Parses a raw input string into a specific Command object.
+     * @param fullCommand The full line of text entered by the user.
+     * @return A Command object ready for execution.
+     * @throws JerryException If the command format is invalid.
+     */
     public static Command parse(String fullCommand) throws JerryException {
         String[] parts = fullCommand.trim().split(" ", 2);
         String commandWord = parts[0].toLowerCase();

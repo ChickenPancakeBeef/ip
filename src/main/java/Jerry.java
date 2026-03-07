@@ -1,10 +1,16 @@
 import java.nio.file.Paths;
-
+/**
+ * Main entry point for the Jerry chatbot.
+ * Coordinates the UI, Storage, TaskList, and Parser components.
+ */
 public class Jerry {
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
-
+    /**
+     * Initializes the chatbot with a file path for data persistence.
+     * @param filePath The path to the file where tasks are saved.
+     */
     public Jerry(String filePath) {
         ui = new Ui();
         storage = new Storage(Paths.get(filePath));
@@ -17,7 +23,9 @@ public class Jerry {
         }
         this.tasks = loadedTasks;
     }
-
+    /**
+     * Starts the main execution loop of the chatbot.
+     */
     public void run() {
         ui.showWelcome();
         boolean isExit = false;
